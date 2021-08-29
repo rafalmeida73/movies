@@ -5,7 +5,7 @@
 # Movies
 > Aplicativo desenvolvido com React Native
 
-O App traz informações de filmes através da API aberta do Trakt e TMDB
+The App brings movie information through the open API of Trakt and TMDB
 
 ## Installation
 
