@@ -1,7 +1,7 @@
 import * as Types from './types';
 
 const initialState = {
-  movieId: ""
+  movieId: {}
 }
 
 const reducer = (state = initialState, action) => {

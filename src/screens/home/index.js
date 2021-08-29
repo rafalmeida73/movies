@@ -3,7 +3,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Avatar } from 'react-native-paper';
 import Carousel from 'react-native-snap-carousel';
 import { connect } from 'react-redux'
 
@@ -15,7 +14,7 @@ const Home = (props) => {
   const navigation = useNavigation();
   const windowWidth = Dimensions.get('window').width;
   const [recommendedMovie, setRecommendedMovie] = useState({
-    title: ""
+    data: { title: "" }
   });
   const [popularMovies, setPopularMovies] = useState([]);
 
@@ -24,7 +23,10 @@ const Home = (props) => {
       .then((response) => {
         ServiceMovies.movieInfo(response.data[0].movie.ids.tmdb)
           .then((res) => {
-            setRecommendedMovie(res.data)
+            setRecommendedMovie({
+              data: res.data,
+              ids: response.data[0].movie.ids
+            })
           })
       })
       .catch((e) => {
@@ -48,9 +50,13 @@ const Home = (props) => {
     let movies = [];
     data.forEach(movie => {
       ServiceMovies.movieInfo(movie.ids.tmdb).then((r) => {
-        movies.push(r.data)
+        movies.push({
+          ids: movie.ids,
+          data: r.data
+        })
       })
     })
+
     setTimeout(function () {
       setPopularMovies(movies)
     }, 1000)
@@ -59,23 +65,24 @@ const Home = (props) => {
   const _renderItem = ({ item, index }) => {
     return (
       <S.ImageCarrousel
-        source={{ uri: `https://image.tmdb.org/t/p/w500/${item.backdrop_path}` }}
+        source={{ uri: `https://image.tmdb.org/t/p/w500/${item.data.backdrop_path}` }}
         imageStyle={{ borderRadius: 30 }}
+        key={item.data.id}
       >
         <S.MovieVote>
           <S.Icon size={30} icon="star-outline" bgColor="transparent" color="#F7D636" />
-          <S.Vote>{item.vote_average}</S.Vote>
+          <S.Vote>{item.data.vote_average}</S.Vote>
         </S.MovieVote>
         <S.CardContentCarrousel
           onPress={() => {
-            props.updateMovieId(item.id)
+            props.updateMovieId(item)
             navigation.navigate("movie")
           }}
         >
           <S.CardTitleCarrousel>
-            {((item.title).length > 22) ?
-              (((item.title).substring(0, 22 - 3)) + '...') :
-              item.title}
+            {((item.data.title).length > 22) ?
+              (((item.data.title).substring(0, 22 - 3)) + '...') :
+              item.data.title}
           </S.CardTitleCarrousel>
         </S.CardContentCarrousel>
       </S.ImageCarrousel>
@@ -91,11 +98,11 @@ const Home = (props) => {
     <S.Container>
       {/* Recommended movie */}
       <S.Title>Recomendação de hoje</S.Title>
-      <S.ImageCard source={{ uri: `https://image.tmdb.org/t/p/w500/${recommendedMovie.backdrop_path}` }} imageStyle={{ borderRadius: 30 }}>
+      <S.ImageCard source={{ uri: `https://image.tmdb.org/t/p/w500/${recommendedMovie.data.backdrop_path}` }} imageStyle={{ borderRadius: 30 }}>
         <S.CardContent >
           <S.Play
             onPress={() => {
-              props.updateMovieId(recommendedMovie.id)
+              props.updateMovieId(recommendedMovie)
               navigation.navigate("movie")
             }}
           >
@@ -107,9 +114,9 @@ const Home = (props) => {
             />
           </S.Play>
           <S.CardTitle>
-            {((recommendedMovie.title).length > 22) ?
-              (((recommendedMovie.title).substring(0, 22 - 3)) + '...') :
-              recommendedMovie.title}
+            {((recommendedMovie.data.title).length > 22) ?
+              (((recommendedMovie.data.title).substring(0, 22 - 3)) + '...') :
+              recommendedMovie.data.title}
           </S.CardTitle>
         </S.CardContent>
       </S.ImageCard>

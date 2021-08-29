@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import { Avatar } from 'react-native-paper'
+import styled from 'styled-components/native'
+import { Avatar, Card } from 'react-native-paper'
 
 export const Container = styled.ScrollView`
   flex: 1;
@@ -43,6 +43,7 @@ export const ReleaseTitle = styled.Text`
   font-size: 19.2709px;
   line-height: 23px;
   letter-spacing: 0.02px;
+  margin-bottom: 10%;
 
   color: #FFFFFF;
 `
@@ -52,7 +53,7 @@ export const ReleaseText = styled.Text`
   font-size: 14.4532px;
   line-height: 17px;
   letter-spacing: 0.02px;
-  margin: 5% 0;
+  margin-bottom: 5%;
 
   color: #BCBCBC;
 `
@@ -101,7 +102,7 @@ export const SynopsisDesc = styled.Text`
 `
 
 export const Production = styled.View`
-  margin-bottom: 30%;
+  margin-bottom: 20%;
 `
 
 export const ProductionTitle = styled.Text`
@@ -139,4 +140,39 @@ export const ProductionName = styled.Text`
   margin-left: 5%;
 
   color: #FFFFFF;
+`
+
+export const Carrousel = styled.View`
+  margin-bottom: 30%;
+`
+
+export const CardContent = styled(Card)`
+  width: 90%;
+`
+
+export const CarrouselText = styled.Text`
+  font-style: normal;
+  font-weight: 500;
+  font-size: 19.2709px;
+  line-height: 23px;
+  letter-spacing: 0.02px;
+  margin-bottom: 10%;
+
+  color: #FFFFFF;
+`
+
+export const CardImage = styled.Image`
+  height: 100px;
+  width: 100px;
+  border-radius: 10px;
+`
+
+export const CardText = styled.Text`
+  font-style: normal;
+  font-weight: 500;
+  font-size: 19.2709px;
+  letter-spacing: 0.02px;
+  margin-left: 5%;
+
+  color: #000;
 `

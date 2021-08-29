@@ -1,31 +1,31 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Image
+  Dimensions
 } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import YoutubePlayer from "react-native-youtube-iframe";
 import Constants from 'expo-constants'
-import { Chip } from 'react-native-paper';
+import {
+  Chip,
+  Card,
+} from 'react-native-paper';
 import { connect } from 'react-redux';
+import Carousel from 'react-native-snap-carousel';
 
 import ServiceMovies from '../../services/movies'
 import * as S from './styles'
 
 const movie = (props) => {
+  const windowWidth = Dimensions.get('window').width;
   const navigation = useNavigation();
   const { movieId } = props;
   const [movie, setMovie] = useState({ "production_companies": [] });
   const [video, setVideo] = useState();
-  const [genre, setGenre] = useState();
+  const [cast, setCast] = useState([]);
+  const [expanded, setExpanded] = useState(true);
 
-  function HandleGetMovieInfos(id) {
-    ServiceMovies.movieInfo(movieId)
-      .then((res) => {
-        setMovie(res.data);
-        setGenre(res.data.genres[0].name)
-      })
-  }
+  const handlePress = () => setExpanded(!expanded);
 
   function HandleGetMovieVideo(id) {
     ServiceMovies.movieVideo(id)
@@ -34,13 +34,63 @@ const movie = (props) => {
       })
   }
 
-  useEffect(() => {
+  function HandleGetComments(id) {
+    ServiceMovies.commentsMovie(id)
+      .then((res) => {
+        console.log(res.data)
+      })
+  }
+
+  function HandleGetPeoples(id) {
+    ServiceMovies.peopleMovie(id)
+      .then((res) => {
+        handleGetCast(res.data.cast)
+      })
+  }
+
+  function handleGetCast(data) {
+    let peoples = []
+
+    data.forEach(people => {
+      ServiceMovies.peopleInfo(people.person.ids.tmdb).then((r) => {
+        peoples.push(r.data)
+      })
+    })
+
     setTimeout(function () {
-      console.log(props.movieId)
-    }, 3000)
+      setCast(peoples)
+    }, 2000)
+  }
+
+  const _renderItem = ({ item, index }) => {
+    return (
+      <S.CardContent key={item.id}>
+        <Card.Actions>
+          <View>
+            <S.CardImage
+              source={{
+                uri:
+                  `https://image.tmdb.org/t/p/w500/${item.profile_path}`,
+              }}
+            />
+          </View>
+          <View>
+            <S.CardText>
+              {((item.name).length > 15) ?
+                (((item.name).substring(0, 15 - 3)) + '...') :
+                item.name}
+            </S.CardText>
+          </View>
+        </Card.Actions>
+      </S.CardContent>
+    );
+  }
+
+  useEffect(() => {
     const reload = navigation.addListener("focus", () => {
-      HandleGetMovieInfos(movieId)
-      HandleGetMovieVideo(movieId)
+      HandleGetMovieVideo(movieId.data.id)
+      // HandleGetComments(movieId.ids.slug)
+      HandleGetPeoples(movieId.ids.slug)
     });
     return reload
   });
@@ -55,16 +105,16 @@ const movie = (props) => {
       </View>
       <S.Content>
         <S.Title>
-          {movie.title} {props.movieId}
+          {movieId.data.title}
         </S.Title>
         <S.Info>
           <S.InfoText>
             <S.Icon size={20} icon="clock-outline" bgColor="transparent" color="#BBBBBB" />
-            {movie.runtime} minutos
+            {movieId.data.runtime} minutos
           </S.InfoText>
           <S.InfoText>
             <S.Icon size={20} icon="star-outline" bgColor="transparent" color="#BBBBBB" />
-            {movie.vote_average}
+            {movieId.data.vote_average}
           </S.InfoText>
         </S.Info>
 
@@ -76,7 +126,7 @@ const movie = (props) => {
               Data de lançamento
             </S.ReleaseTitle>
             <S.ReleaseText>
-              {movie.release_date}
+              {movieId.data.release_date}
             </S.ReleaseText>
           </View>
           <View>
@@ -86,7 +136,7 @@ const movie = (props) => {
             <S.ReleaseText>
               <Chip
               >
-                {genre}
+                {movieId.data.genres[0].name}
               </Chip>
             </S.ReleaseText>
           </View>
@@ -99,7 +149,7 @@ const movie = (props) => {
             Sinopse
           </S.SynopsisTitle>
           <S.SynopsisDesc>
-            {movie.overview}
+            {movieId.data.overview}
           </S.SynopsisDesc>
         </S.Synopsis>
 
@@ -107,7 +157,7 @@ const movie = (props) => {
           <S.ProductionTitle>
             Produção
           </S.ProductionTitle>
-          {movie.production_companies.map(production => {
+          {movieId.data.production_companies.map(production => {
             return (
               <S.ProductionCard key={production.id}>
                 <S.ProductionCardImage
@@ -124,6 +174,20 @@ const movie = (props) => {
             )
           })}
         </S.Production>
+
+        <S.Carrousel>
+          <S.CarrouselText>
+            Elenco
+          </S.CarrouselText>
+          <Carousel
+            ref={(c) => { _carousel = c; }}
+            data={cast}
+            renderItem={_renderItem}
+            sliderWidth={windowWidth}
+            itemWidth={300}
+          />
+        </S.Carrousel>
+
       </S.Content>
     </S.Container>
   );

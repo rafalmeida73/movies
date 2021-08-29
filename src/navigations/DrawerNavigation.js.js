@@ -17,7 +17,7 @@ export default function Stack() {
           name="home"
           component={Home}
           options={{
-            title: "rafa",
+            title: "Movies",
             headerTintColor: '#fff',
             headerStyle: {
               shadowColor: 'transparent',
